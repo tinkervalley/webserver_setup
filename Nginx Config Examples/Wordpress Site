@@ -1,0 +1,33 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 307 https://$host$request_uri;
+    location /.well-known/acme-challenge {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real_IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr:$remote_port;
+        proxy_pass http://127.0.0.1:9180;
+    }
+}
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name yourdomain.com www.yourdomain.com;
+    ssl_certificate /etc/nginx/ssl/yourdomain/fullchain.cer;
+    ssl_certificate_key /etc/nginx/ssl/yourdomain/private.key;
+    root /var/www/html/yourdomainroot;
+    index index.php;
+    include snippets/wordpress1/server-11-gzip;
+    include snippets/wordpress1/server-12-miscconfigs;
+    include snippets/wordpress1/server-10-browsercache;
+    include snippets/wordpress1/server-31-webpexpress;
+    include snippets/wordpress1/server-30-wpsupercache;
+    include snippets/wordpress1/server-50-fpm;
+    location /.well-known/acme-challenge {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real_IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr:$remote_port;
+        proxy_pass http://127.0.0.1:9180;
+    }
+}
